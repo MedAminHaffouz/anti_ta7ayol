@@ -1,6 +1,7 @@
 # main.py
 from fastapi import FastAPI
-from src.routers import classify_router, ocr_router, voice_router, health_router
+from routers import classify_router, ocr_router, voice_router, health_router
+
 
 app = FastAPI()
 
