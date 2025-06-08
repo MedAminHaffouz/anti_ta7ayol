@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+transformers
+pytesseract
+SpeechRecognition
+python-multipart
+vosk
+scikit-learn
+python-bidi
+arabic_reshaper
