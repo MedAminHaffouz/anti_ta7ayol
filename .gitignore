@@ -17,4 +17,4 @@ venv/
 .DS_Store
 Thumbs.db
 #Model files
-models/vosk-model
+backend/models

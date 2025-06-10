@@ -1,0 +1,1 @@
+from .fact_check import classify_claim
