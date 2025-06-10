@@ -1,7 +1,7 @@
 from vosk import KaldiRecognizer, Model
 import wave
 import json
-
+#loads the model that does the text extraction from the audio as simple as that bro
 def load_vosk_model(model_path: str)-> Model:
     return Model(model_path)
 

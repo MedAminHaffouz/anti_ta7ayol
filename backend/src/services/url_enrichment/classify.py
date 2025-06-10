@@ -4,6 +4,7 @@ from .extract_url_data import extract_url_features
 
 from xgboost import XGBClassifier
 
+#function that takes url and returns probability of that url being malicious as simple as that bro
 def classify_url(url: str, model: XGBClassifier) -> float:
     url_features = extract_url_features(url)
 
@@ -19,4 +20,3 @@ if __name__ == '__main__':
     model = load_model(model_path)
 
     print(classify_url("https://en.wikipedia.org/wiki/Main_Page", model))
-

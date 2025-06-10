@@ -2,6 +2,8 @@ import numpy as np
 import faiss
 from .vector_db import VectorDB
 
+
+#function that takes a text (claim) and a vector_db object and returns a score based on its similarity with scam keywords as simple as that bro
 def classify(vector_db: VectorDB, text: str) -> float:
     model = vector_db.model
     input_embeddings = model.encode([text])

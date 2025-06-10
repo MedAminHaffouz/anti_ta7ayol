@@ -2,6 +2,8 @@ import pickle
 from sklearn.pipeline import make_pipeline
 import os
 
+
+#function that loads the model and takes the path to the model as a parameter as simple as that bro
 def load_model(model_path: str):
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"{model_path} does not exist")
