@@ -1,53 +1,51 @@
-# main.py
-
-import os
-from fastapi import FastAPI
-from routers import classify_router, ocr_router, voice_router, health_router
-
-# Import your services
-from services.similarity_check import load_model as load_similarity_model, VectorDB
-from services.url_enrichment import load_model as load_url_model
-from services.LLM_response import get_response
+from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import Optional
+from services.similarity_check import classify as similarity_classify
+from services.similarity_check import VectorDB
+from services.url_enrichment import classify_url
 from services.fact_check import classify_claim
+from services.LLM_response import get_response
 
-# === Load Similarity Model & Vector DB ===
-similarity_model_path = "models/sentence_transformer"
-similarity_model = load_similarity_model(similarity_model_path)
+# These will be set later by main.py
+vector_db: VectorDB = None
+url_model = None
 
-# Use correct path to your scam phrases file
-phrases_path = "backend/data/tunisian_scam_phrases (1).txt"
-index_path = "scam_index.faiss"
-metadata_path = "scam_metadata.pkl"
+router = APIRouter(prefix="/classify", tags=["Classification"])
 
-vector_db = VectorDB(
-    model=similarity_model,
-    phrases_path=phrases_path,
-    index_path=index_path,
-    metadata_path=metadata_path
-)
+class ClassifyRequest(BaseModel):
+    text: str
+    url: Optional[str] = None
 
-# If the FAISS index or metadata doesn't exist, recreate the DB
-if not (os.path.exists(index_path) and os.path.exists(metadata_path)):
-    print("[INFO] Index or metadata missing → Initializing vector DB from phrases.")
-    vector_db.init_index()
-else:
-    print("[INFO] Index and metadata found → Loading vector DB.")
-    vector_db.load_index()
+@router.post("/")
+def classify_pipeline(request: ClassifyRequest):
+    text = request.text
+    url = request.url
 
-# === Load Phishing URL Model ===
-url_model_path = "models/phishing_model"
-url_model = load_url_model(url_model_path)
+    # === Step 1: Similarity score
+    score2 = similarity_classify(vector_db, text)
 
-# === Inject into classify_router ===
-classify_router.vector_db = vector_db
-classify_router.url_model = url_model
-classify_router.llm_response = get_response
-classify_router.fact_check_fn = classify_claim
+    # === Step 2: Google Fact Check
+    fact_score = classify_claim(text)
+    score3 = 1.0 if fact_score == 0 else 0.0 if fact_score == 1 else None
 
-# === FastAPI App ===
-app = FastAPI()
+    # === Step 3: URL (if provided)
+    score1 = classify_url(url, url_model) if url else None
 
-app.include_router(classify_router.router)
-app.include_router(ocr_router.router)
-app.include_router(voice_router.router)
-app.include_router(health_router.router)
+    # === Step 4: Final F1-like score
+    if score1 is not None and score3 is not None:
+        final_score = 2 * (score3 * score2 * score1) / (score2 + score1 + score3 + 1e-8)
+    elif score1 is None and score3 is not None:
+        final_score = 2 * (score3 * score2) / (score3 + score2 + 1e-8)
+    elif score3 is None and score1 is not None:
+        final_score = 2 * (score1 * score2) / (score1 + score2 + 1e-8)
+    elif score3 is None and score1 is None:
+        final_score=score2
+
+    # === Step 5: LLM Rapport generation
+    rapport = get_response(final_score, text)
+
+    return {
+        "rapport": rapport,
+        "final_score":final_score
+    }
