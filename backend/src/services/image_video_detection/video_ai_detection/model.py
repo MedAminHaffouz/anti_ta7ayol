@@ -1,22 +1,12 @@
 import cv2
 from PIL import Image
 import torch
-from transformers import AutoImageProcessor, SiglipForImageClassification
+from ..model_loading import load_model, load_processor
 
-MODEL_IDENTIFIER = "Ateeqq/ai-vs-human-image-detector"
+#you don't need to understand that my friend haffouz
+def classify_frame(frame, device, processor, model):
+    id2label = model.config.id2label
 
-# Load model and processor
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
-
-processor = AutoImageProcessor.from_pretrained(MODEL_IDENTIFIER)
-model = SiglipForImageClassification.from_pretrained(MODEL_IDENTIFIER)
-model.to(device)
-model.eval()
-
-id2label = model.config.id2label
-
-def classify_frame(frame):
     # frame is a BGR OpenCV numpy array
     image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).convert("RGB")
     inputs = processor(images=image, return_tensors="pt").to(device)
@@ -33,7 +23,10 @@ def classify_frame(frame):
             break
     return ai_prob
 
-def analyze_video(video_path, frame_sample_rate=30, frame_ai_threshold=0.5, video_ai_threshold=0.05):
+#this is the classify function of a video basically
+#takes video path, processor(loaded from load_model.py file), model (loaded from load_model.py file), device ("cpu" or "gpu")
+#it returns 1 if ai generated and 0 if not
+def analyze_video(video_path, processor, model, device="cpu",frame_sample_rate=30, frame_ai_threshold=0.5, video_ai_threshold=0.05):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print(f"Failed to open video file {video_path}")
@@ -53,8 +46,7 @@ def analyze_video(video_path, frame_sample_rate=30, frame_ai_threshold=0.5, vide
 
         if frame_idx % frame_sample_rate == 0:
             total_sampled_frames += 1
-            ai_prob = classify_frame(frame)
-            print(f"Frame {frame_idx}: AI probability = {ai_prob:.3f}")
+            ai_prob = classify_frame(frame, device, processor, model)
             if ai_prob > frame_ai_threshold:
                 ai_frames += 1
         frame_idx += 1
@@ -62,17 +54,19 @@ def analyze_video(video_path, frame_sample_rate=30, frame_ai_threshold=0.5, vide
     cap.release()
 
     if total_sampled_frames == 0:
-        print("No frames were sampled.")
-        return
+        raise Exception("No frames in video")
 
     ai_ratio = ai_frames / total_sampled_frames
-    print(f"AI frames: {ai_frames} / {total_sampled_frames} = {ai_ratio:.3f}")
 
     if ai_ratio > video_ai_threshold:
-        print("Final video classification: AI-generated")
+        return 1
     else:
-        print("Final video classification: Human-generated")
+        return 0
 
 if __name__ == "__main__":
-    video_file = "input_video.mp4"  # replace with your video path
-    analyze_video(video_file)
+    import sys
+    video_file = sys.argv[1]
+    processor = load_processor()
+    model = load_model()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("ai video" if analyze_video(video_file, device, processor, model) == 1 else "not ai video")
