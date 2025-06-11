@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File
-# from src.services.text_to_speech import processor
+# from src.services.speech_to_text import processor
 
 router = APIRouter(prefix="/transcribe", tags=["Speech-to-Text"])
 

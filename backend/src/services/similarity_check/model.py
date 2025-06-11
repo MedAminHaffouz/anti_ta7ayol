@@ -21,6 +21,8 @@ def save_model(save_path: str) -> None:
         raise Exception(f"Failed to save model to {abs_save_path}: {e}")
 
 
+
+
 #function that loads the sentence embeddings model that is used to embedd sentences for the vector database
 # and for the similarity search (the classify function) as simple as that bro
 def load_model(save_path: str)-> SentenceTransformer:

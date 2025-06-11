@@ -1,7 +1,7 @@
 from .model import transcribe_audio, load_vosk_model
 
 
-class TextToSpeechProcessor:
+class SpeechToTextProcessor:
     # takes a path to an audio file and returns the extracted text fromm it (the file has to be .wav) as simple as that bro
     @staticmethod
     def transcribe_audio(audio_path: str, model):
@@ -16,6 +16,6 @@ if __name__ == "__main__":
     model_path = sys.argv[2]
     model = load_vosk_model(model_path)
 
-    transcript = TextToSpeechProcessor.transcribe_audio(audio_path, model)
+    transcript = SpeechToTextProcessor.transcribe_audio(audio_path, model)
     transcript = get_display(arabic_reshaper.reshape(transcript))
     print(f"Transcript: {transcript}")
