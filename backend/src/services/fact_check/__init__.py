@@ -1,1 +1,1 @@
-from .fact_check import classify_claim
+from .processor import classify_claim

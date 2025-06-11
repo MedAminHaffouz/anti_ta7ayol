@@ -7,4 +7,11 @@ python-multipart
 vosk
 scikit-learn
 python-bidi
-arabic_reshaper
+sentence_transformers
+torch
+faiss
+numpy
+pickle
+pandas
+os
+shutil
