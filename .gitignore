@@ -16,5 +16,9 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+
 #Model files
 backend/models
+
+#api keys here
+.env
