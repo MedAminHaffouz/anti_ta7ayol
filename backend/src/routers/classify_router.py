@@ -29,7 +29,7 @@ def classify_pipeline(request: ClassifyRequest):
     score3 = classify_claim(text)
 
     # === Step 3: URL (if provided)
-    score1 = classify_url(url, url_model) if url else None
+    score1 = classify_url(url, url_model) if url else 0
 
     # === sentiment analysis factor
     factor = float(classify_text(text, sentiment_classifier))

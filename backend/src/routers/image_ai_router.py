@@ -3,7 +3,8 @@ from fastapi import APIRouter, UploadFile, File
 import torch
 import shutil
 import os
-from ..services.image_video_detection import load_processor, load_model, classify_image
+from ..services.image_video_detection import load_processor, load_model
+from ..services.image_video_detection.image_forgery_detection.model import classify_image as classify_image_ai
 
 router = APIRouter(prefix="/ai_image", tags=["ai-image-detection"])
 
@@ -23,7 +24,7 @@ def classify_image(file: UploadFile = File(...)):
 
     # Transcribe
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    result = classify_image(file_path, image_model, image_processor, device)
+    result = classify_image_ai(file_path, image_model, image_processor, device= device)
     os.remove(file_path)
 
     return {
