@@ -12,8 +12,8 @@ if __name__ == "__main__":
     import arabic_reshaper
     import sys
 
-    audio_path = sys.argv[1]
-    model_path = sys.argv[2]
+    model_path = sys.argv[1]
+    audio_path = sys.argv[2]
     model = load_vosk_model(model_path)
 
     transcript = SpeechToTextProcessor.transcribe_audio(audio_path, model)

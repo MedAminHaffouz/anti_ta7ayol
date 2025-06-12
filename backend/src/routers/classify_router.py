@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
-from services.similarity_check import classify as similarity_classify
-from services.similarity_check import VectorDB
-from services.url_enrichment import classify_url
-from services.fact_check import classify_claim
-from services.LLM_response import get_response
+from ..services.similarity_check import classify as similarity_classify
+from ..services.similarity_check import VectorDB
+from ..services.url_enrichment import classify_url
+from ..services.fact_check import classify_claim
+from ..services.LLM_response import get_response
 
 # These will be set later by main.py
 vector_db: VectorDB = None
@@ -36,9 +36,9 @@ def classify_pipeline(request: ClassifyRequest):
     if score1 is not None and score3 is not None:
         final_score = 2 * (score3 * score2 * score1) / (score2 + score1 + score3 + 1e-8)
     elif score1 is None and score3 is not None:
-        final_score = 2 * (score3 * score2) / (score3 + score2 + 1e-8)
+        final_score = 1.5 * (score3 * score2) / (score3 + score2 + 1e-8)
     elif score3 is None and score1 is not None:
-        final_score = 2 * (score1 * score2) / (score1 + score2 + 1e-8)
+        final_score = 1.5 * (score1 * score2) / (score1 + score2 + 1e-8)
     elif score3 is None and score1 is None:
         final_score=score2
 

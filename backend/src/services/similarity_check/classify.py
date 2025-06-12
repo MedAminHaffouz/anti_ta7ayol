@@ -12,7 +12,7 @@ def classify(vector_db: VectorDB, text: str) -> float:
     distances, indices = vector_db.index.search(input_embeddings, k=1)
     max_similarity = distances[0][0]
 
-    return max_similarity
+    return abs(max_similarity)
 
 if __name__ == "__main__":
     import sys
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     metadata_path = sys.argv[4]
 
     vector_db = VectorDB(model, phrases_path, index_path, metadata_path)
-    vector_db.load_index()
+    vector_db.init_index()
 
     claim= "wallah kima nahkilek sahbi"
 

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, UploadFile, File
 import shutil
 import os
-from src.services.image_text_extraction.processor import ImageProcessor
+from ..services.image_text_extraction.processor import ImageProcessor
 
 router = APIRouter(prefix="/ocr", tags=["OCR"])
 
@@ -19,6 +19,7 @@ def ocr_image(file: UploadFile = File(...)):
 
     # OCR
     result_text = ImageProcessor.extract_text(file_path)
+    os.remove(file_path)
 
     return {
         "text": result_text,

@@ -2,5 +2,13 @@
   "https://en.wikipedia.org/wiki/Main_Page": {
     "creation_date": "2001-01-13T00:12:14",
     "registrar": "MarkMonitor Inc."
+  },
+  "www.scam.com": {
+    "creation_date": "1994-10-17T04:00:00",
+    "registrar": "Safenames Ltd"
+  },
+  "www.wikipedia.com": {
+    "creation_date": "2001-01-13T00:12:14",
+    "registrar": "MarkMonitor, Inc."
   }
 }
