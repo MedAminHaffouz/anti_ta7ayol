@@ -22,3 +22,5 @@ backend/models
 
 #api keys here
 .env
+
+backend/Dockerfile

@@ -1,7 +1,15 @@
-# main.py
 import os
 from fastapi import FastAPI
-from src.routers import classify_router, ocr_router, voice_router,health_router, video_ai_router, image_ai_router
+from fastapi.middleware.cors import CORSMiddleware  # <-- Add this line
+
+from src.routers import (
+    classify_router,
+    ocr_router,
+    voice_router,
+    health_router,
+    video_ai_router,
+    image_ai_router
+)
 
 # Import your services
 from src.services.similarity_check import load_model as load_similarity_model, VectorDB
@@ -14,7 +22,6 @@ from src.services.sentiment_analysis import load_sentiment_classifier
 similarity_model_path = "models/sentence_transformer"
 similarity_model = load_similarity_model(similarity_model_path)
 
-# Use correct path to your scam phrases file
 phrases_path = "data/tunisian_scam_phrases (1).txt"
 index_path = "scam_index.faiss"
 metadata_path = "scam_metadata.pkl"
@@ -26,7 +33,6 @@ vector_db = VectorDB(
     metadata_path=metadata_path
 )
 
-# If the FAISS index or metadata doesn't exist, recreate the DB
 if not (os.path.exists(index_path) and os.path.exists(metadata_path)):
     print("[INFO] Index or metadata missing → Initializing vector DB from phrases.")
     vector_db.init_index()
@@ -48,9 +54,20 @@ classify_router.sentiment_classifier = load_sentiment_classifier()
 # === FastAPI App ===
 app = FastAPI()
 
+# === CORS Setup ===
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development: allow all. Replace with ["https://your-extension-id"] in prod.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def index():
     return {"hello": "world"}
+
+# === Routers ===
 app.include_router(classify_router.router)
 app.include_router(ocr_router.router)
 app.include_router(voice_router.router)
