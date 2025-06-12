@@ -26,21 +26,13 @@ def classify_pipeline(request: ClassifyRequest):
     score2 = similarity_classify(vector_db, text)
 
     # === Step 2: Google Fact Check
-    fact_score = classify_claim(text)
-    score3 = 1.0 if fact_score == 0 else 0.0 if fact_score == 1 else None
+    score3 = classify_claim(text)
 
     # === Step 3: URL (if provided)
     score1 = classify_url(url, url_model) if url else None
 
     # === Step 4: Final F1-like score
-    if score1 is not None and score3 is not None:
-        final_score = 2 * (score3 * score2 * score1) / (score2 + score1 + score3 + 1e-8)
-    elif score1 is None and score3 is not None:
-        final_score = 1.5 * (score3 * score2) / (score3 + score2 + 1e-8)
-    elif score3 is None and score1 is not None:
-        final_score = 1.5 * (score1 * score2) / (score1 + score2 + 1e-8)
-    elif score3 is None and score1 is None:
-        final_score=score2
+    final_score = max(float(score1), float(score2), float(score3))
 
     # === Step 5: LLM Rapport generation
     rapport = get_response(final_score, text)
