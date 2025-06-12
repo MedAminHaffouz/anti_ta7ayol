@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.git
+venv/
+*.mp4
+*.wav
+*.txt~
+*.zip

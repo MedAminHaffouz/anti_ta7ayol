@@ -17,5 +17,4 @@ groq
 arabic_reshaper
 requests
 bs4
-typing
-urllib
+
