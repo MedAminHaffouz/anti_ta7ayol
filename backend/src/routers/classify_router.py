@@ -35,12 +35,12 @@ def classify_pipeline(request: ClassifyRequest):
     factor = float(classify_text(text, sentiment_classifier))
 
     # === Step 4: Final F1-like score
-    final_score = factor * max(float(score1), float(score2), float(score3))
+    final_score = min(1.0, factor * max(float(score1), float(score2), float(score3)))
 
     # === Step 5: LLM Rapport generation
     rapport = get_response(final_score, text)
 
     return {
         "rapport": rapport,
-        "final_score":final_score
+        "final_score":final_score*100
     }
