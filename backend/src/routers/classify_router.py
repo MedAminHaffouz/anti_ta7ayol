@@ -6,11 +6,11 @@ from ..services.similarity_check import VectorDB
 from ..services.url_enrichment import classify_url
 from ..services.fact_check import classify_claim
 from ..services.LLM_response import get_response
-
+from ..services.sentiment_analysis import classify_text
 # These will be set later by main.py
 vector_db: VectorDB = None
 url_model = None
-
+sentiment_classifier = None
 router = APIRouter(prefix="/classify", tags=["Classification"])
 
 class ClassifyRequest(BaseModel):
@@ -31,8 +31,11 @@ def classify_pipeline(request: ClassifyRequest):
     # === Step 3: URL (if provided)
     score1 = classify_url(url, url_model) if url else None
 
+    # === sentiment analysis factor
+    factor = float(classify_text(text, sentiment_classifier))
+
     # === Step 4: Final F1-like score
-    final_score = max(float(score1), float(score2), float(score3))
+    final_score = factor * max(float(score1), float(score2), float(score3))
 
     # === Step 5: LLM Rapport generation
     rapport = get_response(final_score, text)

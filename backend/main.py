@@ -1,14 +1,14 @@
 # main.py
-
 import os
 from fastapi import FastAPI
-from src.routers import classify_router, ocr_router, voice_router,health_router
+from src.routers import classify_router, ocr_router, voice_router,health_router, video_ai_router, image_ai_router
 
 # Import your services
 from src.services.similarity_check import load_model as load_similarity_model, VectorDB
 from src.services.url_enrichment import load_model as load_url_model
 from src.services.LLM_response import get_response
 from src.services.fact_check import classify_claim
+from src.services.sentiment_analysis import load_sentiment_classifier
 
 # === Load Similarity Model & Vector DB ===
 similarity_model_path = "models/sentence_transformer"
@@ -43,6 +43,7 @@ classify_router.vector_db = vector_db
 classify_router.url_model = url_model
 classify_router.llm_response = get_response
 classify_router.fact_check_fn = classify_claim
+classify_router.sentiment_classifier = load_sentiment_classifier()
 
 # === FastAPI App ===
 app = FastAPI()
@@ -54,3 +55,5 @@ app.include_router(classify_router.router)
 app.include_router(ocr_router.router)
 app.include_router(voice_router.router)
 app.include_router(health_router.router)
+app.include_router(video_ai_router.router)
+app.include_router(image_ai_router.router)
